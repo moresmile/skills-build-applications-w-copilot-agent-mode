@@ -32,6 +32,5 @@ class Command(BaseCommand):
         for activity in activities:
             print(f"Saving activity: {activity}")
             activity.save()
-            print(f"Activity saved: {activity}")
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database!'))
