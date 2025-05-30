@@ -9,22 +9,26 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Create users
         users = [
-            {"_id": ObjectId(), "username": "thundergod", "email": "thundergod@mhigh.edu", "password": "thundergodpassword"},
-            {"_id": ObjectId(), "username": "metalgeek", "email": "metalgeek@mhigh.edu", "password": "metalgeekpassword"},
+            User(_id=ObjectId(), username='thundergod', email='thundergod@mhigh.edu', password='thundergodpassword'),
+            User(_id=ObjectId(), username='metalgeek', email='metalgeek@mhigh.edu', password='metalgeekpassword'),
         ]
-        User.objects.bulk_create([User(**user) for user in users])
+        User.objects.bulk_create(users)
+
+        # Convert users to dictionaries for ArrayField and EmbeddedField compatibility
+        user_dicts = [
+            {"_id": str(user._id), "username": user.username, "email": user.email, "password": user.password}
+            for user in User.objects.all()
+        ]
 
         # Create team
-        team = Team.objects.create(name="Blue Team")
+        team = Team(_id=ObjectId(), name='Blue Team', members=user_dicts)
         team.save()
-        for user in User.objects.all():
-            team.members.add(user)
 
         # Create activities
         activities = [
-            {"user": User.objects.first(), "activity_type": "Cycling", "duration": timedelta(hours=1)},
-            {"user": User.objects.all()[1], "activity_type": "Crossfit", "duration": timedelta(hours=2)},
+            Activity(_id=ObjectId(), user=user_dicts[0], activity_type='Cycling', duration=timedelta(hours=1)),
+            Activity(_id=ObjectId(), user=user_dicts[1], activity_type='Crossfit', duration=timedelta(hours=2)),
         ]
-        Activity.objects.bulk_create([Activity(**activity) for activity in activities])
+        Activity.objects.bulk_create(activities)
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database!'))
