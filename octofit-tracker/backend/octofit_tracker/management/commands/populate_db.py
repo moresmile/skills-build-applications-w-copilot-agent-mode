@@ -29,6 +29,9 @@ class Command(BaseCommand):
             Activity(_id=ObjectId(), user=user_dicts[0], activity_type='Cycling', duration=timedelta(hours=1)),
             Activity(_id=ObjectId(), user=user_dicts[1], activity_type='Crossfit', duration=timedelta(hours=2)),
         ]
-        Activity.objects.bulk_create(activities)
+        for activity in activities:
+            print(f"Saving activity: {activity}")
+            activity.save()
+            print(f"Activity saved: {activity}")
 
         self.stdout.write(self.style.SUCCESS('Successfully populated the database!'))
